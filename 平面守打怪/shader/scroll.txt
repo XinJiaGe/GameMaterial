@@ -1,0 +1,18 @@
+varying vec2 v_texCoord;
+varying vec4 v_fragmentColor;
+void main()
+{
+    vec2 coord = v_texCoord;
+    if(coord.x<0.6 && coord.x*15.0>1.0-coord.y){
+        float time = CC_Time[1]*0.2;
+        coord.y +=coord.x*coord.x*1.5;
+        coord.x += time-float(int(time));
+        if(coord.x>1.0){
+            coord.x -= 1.0;
+        }
+        gl_FragColor= texture2D(CC_Texture0, coord)*v_fragmentColor;
+    }else{
+        //gl_FragColor=vec4(0,0,0,0);
+        discard;
+    }
+}

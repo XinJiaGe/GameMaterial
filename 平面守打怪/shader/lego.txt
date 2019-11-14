@@ -1,0 +1,15 @@
+varying vec2 v_texCoord;
+varying vec4 v_fragmentColor;
+uniform float u_cell_x;
+uniform float u_cell_y;
+void main()
+{
+    float mx = mod(v_texCoord.x,u_cell_x);
+    float my = mod(v_texCoord.y,u_cell_y);
+    float x = (v_texCoord.x-mx);
+    float y = (v_texCoord.y-my);
+
+    vec4 c = texture2D(CC_Texture0, vec2(x,y));
+    c.rgb=c.rgb*step(0.0971*u_cell_x,mx)*step(0.098*u_cell_y,my);
+    gl_FragColor = c;
+}

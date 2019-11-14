@@ -1,0 +1,61 @@
+varying vec2 v_texCoord;
+varying vec4 v_fragmentColor;
+
+
+//1.
+uniform sampler2D u_normalMap;
+
+vec3 waveNormal(vec2 p) {
+    vec3 normal = texture2D(u_normalMap, p).xyz;
+    normal = -1.0 + normal * 2.0;
+    return normalize(normal);
+}
+
+//高光计算 参见基本光照公式
+//参数说明：n法向量， l入射光向量， e观察向量
+//float specular(vec3 n,vec3 l,vec3 e) {
+//    return pow(max(dot(reflect(e,n),l),0.0),2);
+//}
+
+//2.
+//#define F cos(x-y)*cos(y),sin(x+y)*sin(y)
+//
+//vec2 s(vec2 p){
+//float d=CC_Time.y*0.2,x=8.*(p.x+d),y=8.*(p.y+d);
+//return vec2(F);
+//}
+
+
+void main()
+{
+// 1.
+    float timeFactor = 0.1;
+    float offsetFactor = 0.2;
+    float refractionFactor = 0.6;
+
+    // simple UV animation
+    vec3 normal = waveNormal(0.5*v_texCoord + 0.5*vec2(CC_Time.y * timeFactor, 0.));
+
+    // simple calculate refraction UV offset
+    vec2 p = -1. + 2. * v_texCoord;
+    vec3 eyePos = vec3(0., 0., 10.);
+
+    vec3 inVec = normalize(vec3(p, 0.) - eyePos);
+    vec3 refractVec = refract(inVec, normal, refractionFactor);
+    vec2 v_texCoordN = v_texCoord;
+    v_texCoordN += refractVec.xy * offsetFactor;
+
+    //vec3 light = vec3(0.2,0.1,0);
+    //// bteitler: Apply specular highlight
+    //vec3 normalN = waveNormal(0.4*v_texCoordN);
+    //vec3 color = vec3(specular(normalN,light,eyePos));
+
+    gl_FragColor = texture2D(CC_Texture0, v_texCoordN)*v_fragmentColor;
+    //gl_FragColor = texture2D(CC_Texture0, v_texCoordN) + vec4(color,1.)*(sin(CC_Time.y*0.5)*0.25+0.5); //加了高光效果的水面
+
+//2.
+//    vec2 i=vec2(1.,1.),r=v_texCoord,q=r+0.005/1.*(s(r)-s(r+i));
+//    q.y=1.-q.y;
+//    gl_FragColor=texture2D(CC_Texture0,q);
+
+}
